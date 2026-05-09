@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpoSchool - Des exposés clairs, rapides et intelligents</title>
+    <meta name="description" content="Générez des exposés scolaires de qualité adaptés à votre niveau. Primaire, Collège, Lycée, Université.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+                            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                            800: '#1e40af', 900: '#1e3a8a',
+                        },
+                        accent: {
+                            50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc',
+                            400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf',
+                            800: '#86198f', 900: '#701a75',
+                        },
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mesh-gradient {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+        }
+        .dark .mesh-gradient {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,20%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,20%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,20%,1) 0, transparent 50%);
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .loader {
+            width: 48px; height: 48px;
+            border: 5px solid #e2e8f0;
+            border-bottom-color: #3b82f6;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: blob-bounce 10s infinite ease-in-out;
+        }
+        @keyframes blob-bounce {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .audio-wave {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 30px;
+        }
+        .audio-wave span {
+            width: 4px;
+            background: linear-gradient(to top, #3b82f6, #8b5cf6);
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        .audio-wave span:nth-child(1) { height: 20%; animation-delay: 0s; }
+        .audio-wave span:nth-child(2) { height: 40%; animation-delay: 0.1s; }
+        .audio-wave span:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+        .audio-wave span:nth-child(4) { height: 80%; animation-delay: 0.3s; }
+        .audio-wave span:nth-child(5) { height: 100%; animation-delay: 0.4s; }
+        .audio-wave span:nth-child(6) { height: 80%; animation-delay: 0.5s; }
+        .audio-wave span:nth-child(7) { height: 60%; animation-delay: 0.6s; }
+        .audio-wave span:nth-child(8) { height: 40%; animation-delay: 0.7s; }
+        .audio-wave span:nth-child(9) { height: 20%; animation-delay: 0.8s; }
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
+
+        .pdf-preview {
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .dark .pdf-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+<base target="_blank">
+</head>
+<body class="font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-50 dark:bg-[#0f172a]">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <div class="glass mx-4 mt-4 rounded-2xl px-6 py-4 max-w-7xl mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="#" class="flex items-center gap-3 group" onclick="showPage('home'); return false;">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <span class="font-display font-bold text-xl tracking-tight">
+                        Expo<span class="gradient-text">School</span>
+                    </span>
+                </a>
+
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" onclick="scrollToSection('features')" class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Fonctionnalités</a>
+                    <a href="#how-it-works" onclick="scrollToSection('how-it-works')" class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Comment ça marche</a>
+                    <a href="#subjects" onclick="scrollToSection('subjects')" class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Matières</a>
+                    <a href="#testimonials" onclick="scrollToSection('testimonials')" class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Témoignages</a>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
+
+                    <button onclick="showPage('generate')" class="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-primary-500/25 transition-all hover:-translate-y-0.5">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        Créer un exposé
+                    </button>
+
+                    <button onclick="toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden mx-4 mt-2 glass rounded-2xl p-6 space-y-4">
+            <a href="#features" onclick="scrollToSection('features'); toggleMobileMenu(); return false;" class="block text-slate-700 dark:text-slate-200 font-medium">Fonctionnalités</a>
+            <a href="#how-it-works" onclick="scrollToSection('how-it-works'); toggleMobileMenu(); return false;" class="block text-slate-700 dark:text-slate-200 font-medium">Comment ça marche</a>
+            <a href="#subjects" onclick="scrollToSection('subjects'); toggleMobileMenu(); return false;" class="block text-slate-700 dark:text-slate-200 font-medium">Matières</a>
+            <button onclick="showPage('generate')" class="w-full py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-semibold">
+                Créer un exposé
+            </button>
+        </div>
+    </nav>
+
+    <main id="main-content" class="pt-24">
+
+        <!-- HOME PAGE -->
+        <div id="page-home">
+            <!-- Hero Section -->
+            <section class="relative min-h-screen flex items-center justify-center overflow-hidden mesh-gradient">
+                <div class="blob w-[500px] h-[500px] bg-primary-400 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+                <div class="blob w-[500px] h-[500px] bg-accent-400 rounded-full bottom-0 right-0 translate-x-1/2 translate-y-1/2" style="animation-delay: -3s;"></div>
+                <div class="blob w-[400px] h-[400px] bg-purple-400 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="animation-delay: -6s;"></div>
+
+                <div class="relative z-10 max-w-7xl mx-auto px-6 py-20 text-center">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 mb-8 animate-float">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Plus de 50,000 exposés générés</span>
+                    </div>
+
+                    <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6">
+                        Des exposés <span class="gradient-text">clairs</span>,<br>
+                        <span class="relative inline-block">
+                            rapides
+                            <svg class="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none">
+                                <path d="M2 10C50 2 150 2 198 10" stroke="url(#gradient)" stroke-width="4" stroke-linecap="round"/>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#3b82f6"/>
+                                        <stop offset="100%" stop-color="#d946ef"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </span> 
+                        et intelligents
+                    </h1>
+
+                    <p class="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+                        La plateforme éducative qui aide les élèves à créer des exposés parfaits, adaptés à leur niveau scolaire, en quelques secondes.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                        <button onclick="showPage('generate')" class="group px-8 py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-primary-500/25 transition-all hover:-translate-y-1 flex items-center gap-3">
+                            <i class="fas fa-wand-magic-sparkles group-hover:rotate-12 transition-transform"></i>
+                            Créer mon exposé
+                        </button>
+                        <button onclick="scrollToSection('how-it-works')" class="px-8 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-2xl font-bold text-lg border-2 border-slate-200 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-500 transition-all flex items-center gap-3">
+                            <i class="fas fa-play-circle text-primary-500"></i>
+                            Voir comment ça marche
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                        <div class="glass rounded-2xl p-6 text-center card-hover">
+                            <div class="text-3xl font-bold gradient-text mb-1">50K+</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Exposés créés</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center card-hover">
+                            <div class="text-3xl font-bold gradient-text mb-1">12</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Matières</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center card-hover">
+                            <div class="text-3xl font-bold gradient-text mb-1">4</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Niveaux scolaires</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center card-hover">
+                            <div class="text-3xl font-bold gradient-text mb-1">98%</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Satisfaction</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-16 relative max-w-5xl mx-auto">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-50 dark:from-[#0f172a] to-transparent z-10 h-32 bottom-0 top-auto pointer-events-none"></div>
+                        <div class="glass rounded-3xl p-2 shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
+                            <div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden">
+                                <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                                    <div class="flex gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                                    </div>
+                                    <div class="flex-1 text-center text-sm text-slate-400 font-mono">ExpoSchool - Prévisualisation</div>
+                                </div>
+                                <div class="p-8 text-left">
+                                    <div class="flex items-start gap-6">
+                                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 flex items-center justify-center text-2xl shadow-inner">
+                                            📚
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="text-2xl font-bold mb-2 dark:text-white">La Révolution Française</h3>
+                                            <div class="flex gap-2 mb-4">
+                                                <span class="px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-semibold">Histoire</span>
+                                                <span class="px-3 py-1 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 text-xs font-semibold">Lycée</span>
+                                            </div>
+                                            <div class="space-y-3">
+                                                <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-3/4 animate-pulse"></div>
+                                                <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                                                <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-5/6 animate-pulse" style="animation-delay: 0.4s;"></div>
+                                                <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-4/5 animate-pulse" style="animation-delay: 0.6s;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works -->
+            <section id="how-it-works" class="py-24 bg-white dark:bg-[#0f172a]">
+                <div class="max-w-7xl mx-auto px-6">
+                    <div class="text-center mb-16 reveal">
+                        <span class="inline-block px-4 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-semibold mb-4">Simple et rapide</span>
+                        <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Comment ça marche ?</h2>
+                        <p class="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">Trois étapes simples pour obtenir un exposé parfait</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="relative group reveal">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity blur-xl"></div>
+                            <div class="relative glass rounded-3xl p-8 h-full card-hover border border-slate-200 dark:border-slate-700">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white flex items-center justify-center text-2xl font-bold mb-6 shadow-lg shadow-primary-500/30">1</div>
+                                <h3 class="text-xl font-bold mb-3">Choisissez vos critères</h3>
+                                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Sélectionnez votre niveau scolaire, la matière, le thème et les options de personnalisation souhaitées.</p>
+                                <div class="mt-6 flex gap-2">
+                                    <span class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 text-sm"><i class="fas fa-graduation-cap"></i></span>
+                                    <span class="w-10 h-10 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center text-accent-600 text-sm"><i class="fas fa-book"></i></span>
+                                    <span class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 text-sm"><i class="fas fa-pen"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative group reveal">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-accent-500 to-purple-500 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity blur-xl"></div>
+                            <div class="relative glass rounded-3xl p-8 h-full card-hover border border-slate-200 dark:border-slate-700">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white flex items-center justify-center text-2xl font-bold mb-6 shadow-lg shadow-accent-500/30">2</div>
+                                <h3 class="text-xl font-bold mb-3">L'IA génère votre exposé</h3>
+                                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Notre intelligence artificielle avancée crée un exposé structuré, clair et adapté à votre niveau en quelques secondes.</p>
+                                <div class="mt-6">
+                                    <div class="flex items-center gap-2">
+                                        <div class="audio-wave h-6">
+                                            <span class="w-1 h-full"></span>
+                                            <span class="w-1 h-full"></span>
+                                            <span class="w-1 h-full"></span>
+                                            <span class="w-1 h-full"></span>
+                                            <span class="w-1 h-full"></span>
+                                        </div>
+                                        <span class="text-xs text-slate-400">Génération en cours...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative group reveal">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity blur-xl"></div>
+                            <div class="relative glass rounded-3xl p-8 h-full card-hover border border-slate-200 dark:border-slate-700">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white flex items-center justify-center text-2xl font-bold mb-6 shadow-lg shadow-purple-500/30">3</div>
+                                <h3 class="text-xl font-bold mb-3">Utilisez et partagez</h3>
+                                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Lisez, écoutez, téléchargez en PDF, copiez ou partagez votre exposé. Sauvegardez dans votre espace personnel.</p>
+                                <div class="mt-6 flex gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400"><i class="fas fa-file-pdf text-xs"></i></div>
+                                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400"><i class="fas fa-volume-high text-xs"></i></div>
+                                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400"><i class="fas fa-copy text-xs"></i></div>
+                                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400"><i class="fas fa-share-nodes text-xs"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Subjects Section -->
+            <section id="subjects" class="py-24 bg-slate-50 dark:bg-slate-900/50">
+                <div class="max-w-7xl mx-auto px-6">
+                    <div class="text-center mb-16 reveal">
+                        <span class="inline-block px-4 py-1 rounded-full bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 text-sm font-semibold mb-4">Toutes les matières</span>
+                        <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Matières disponibles</h2>
+                        <p class="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">Des exposés pour toutes les disciplines scolaires</p>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="subjects-grid"></div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section id="features" class="py-24 bg-white dark:bg-[#0f172a]">
+                <div class="max-w-7xl mx-auto px-6">
+                    <div class="grid lg:grid-cols-2 gap-16 items-center">
+                        <div class="reveal">
+                            <span class="inline-block px-4 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-semibold mb-4">Fonctionnalités premium</span>
+                            <h2 class="font-display text-4xl md:text-5xl font-bold mb-6">Tout ce dont vous avez besoin pour réussir</h2>
+                            <p class="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">ExpoSchool combine les meilleures technologies pour vous offrir une expérience d'apprentissage optimale.</p>
+
+                            <div class="space-y-6">
+                                <div class="flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 group-hover:scale-110 transition-transform shrink-0">
+                                        <i class="fas fa-brain text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg mb-1">IA Générative Avancée</h4>
+                                        <p class="text-slate-600 dark:text-slate-400 text-sm">Des exposés structurés et cohérents grâce à notre modèle d'intelligence artificielle de pointe.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center text-accent-600 group-hover:scale-110 transition-transform shrink-0">
+                                        <i class="fas fa-file-pdf text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg mb-1">Export PDF Professionnel</h4>
+                                        <p class="text-slate-600 dark:text-slate-400 text-sm">Téléchargez vos exposés au format PDF avec une mise en page professionnelle et imprimable.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform shrink-0">
+                                        <i class="fas fa-headphones text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg mb-1">Lecture Audio Intégrée</h4>
+                                        <p class="text-slate-600 dark:text-slate-400 text-sm">Écoutez votre exposé pour mieux mémoriser ou réviser en faisant autre chose.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform shrink-0">
+                                        <i class="fas fa-language text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg mb-1">Traduction Multilingue</h4>
+                                        <p class="text-slate-600 dark:text-slate-400 text-sm">Traduisez vos exposés en Français, Anglais ou Arabe d'un simple clic.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative reveal">
+                            <div class="absolute -inset-4 bg-gradient-to-r from-primary-500 to-accent-500 rounded-3xl opacity-20 blur-2xl"></div>
+                            <div class="relative glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600"><i class="fas fa-check"></i></div>
+                                            <span class="font-medium">Introduction structurée</span>
+                                        </div>
+                                        <span class="text-green-500"><i class="fas fa-circle-check"></i></span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center text-accent-600"><i class="fas fa-check"></i></div>
+                                            <span class="font-medium">Développement détaillé</span>
+                                        </div>
+                                        <span class="text-green-500"><i class="fas fa-circle-check"></i></span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600"><i class="fas fa-check"></i></div>
+                                            <span class="font-medium">Exemples concrets</span>
+                                        </div>
+                                        <span class="text-green-500"><i class="fas fa-circle-check"></i></span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600"><i class="fas fa-check"></i></div>
+                                            <span class="font-medium">Conclusion et ouverture</span>
+                                        </div>
+                                        <span class="text-green-500"><i class="fas fa-circle-check"></i></span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600"><i class="fas fa-check"></i></div>
+                                            <span class="font-medium">Vocabulaire adapté</span>
+                                        </div>
+                                        <span class="text-green-500"><i class="fas fa-circle-check"></i></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6 p-4 bg-gradient-to-r from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl border border-primary-200 dark:border-primary-800">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                                        <span class="font-semibold text-sm">Astuce IA</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400">L'IA adapte automatiquement le niveau de langage et la complexité des concepts selon le niveau scolaire choisi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials -->
+            <section id="testimonials" class="py-24 bg-slate-50 dark:bg-slate-900/50">
+                <div class="max-w-7xl mx-auto px-6">
+                    <div class="text-center mb-16 reveal">
+                        <span class="inline-block px-4 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-semibold mb-4">Ils nous font confiance</span>
+                        <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Ce que disent nos élèves</h2>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-8" id="testimonials-grid"></div>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="py-24 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-600"></div>
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+                    <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+                </div>
+
+                <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+                    <h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-6">Prêt à exceller à l'école ?</h2>
+                    <p class="text-primary-100 text-xl mb-10 max-w-2xl mx-auto">Rejoignez des milliers d'élèves qui utilisent ExpoSchool pour créer des exposés de qualité et améliorer leurs notes.</p>
+                    <button onclick="showPage('generate')" class="px-10 py-5 bg-white text-primary-600 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-3 mx-auto">
+                        <i class="fas fa-rocket"></i>
+                        Commencer gratuitement
+                    </button>
+                    <p class="mt-4 text-primary-200 text-sm">Sans carte bancaire • Gratuit pour toujours</p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 pt-16 pb-8">
+                <div class="max-w-7xl mx-auto px-6">
+                    <div class="grid md:grid-cols-4 gap-12 mb-12">
+                        <div class="md:col-span-1">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold">E</div>
+                                <span class="font-display font-bold text-xl">Expo<span class="gradient-text">School</span></span>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">La plateforme éducative moderne qui aide les élèves à créer des exposés clairs, structurés et intelligents.</p>
+                            <div class="flex gap-4">
+                                <a href="#" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-600 transition-colors"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-600 transition-colors"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-600 transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold mb-4">Produit</h4>
+                            <ul class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                                <li><a href="#" onclick="showPage('generate'); return false;" class="hover:text-primary-600 transition-colors">Générer un exposé</a></li>
+                                <li><a href="#subjects" onclick="scrollToSection('subjects'); return false;" class="hover:text-primary-600 transition-colors">Matières</a></li>
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Niveaux scolaires</a></li>
+                                <li><a href="#features" onclick="scrollToSection('features'); return false;" class="hover:text-primary-600 transition-colors">Fonctionnalités</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold mb-4">Ressources</h4>
+                            <ul class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Centre d'aide</a></li>
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Blog</a></li>
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Guides d'utilisation</a></li>
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">API</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold mb-4">Légal</h4>
+                            <ul class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Confidentialité</a></li>
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Conditions d'utilisation</a></li>
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Cookies</a></li>
+                                <li><a href="#" class="hover:text-primary-600 transition-colors">Mentions légales</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <p class="text-sm text-slate-500 dark:text-slate-500">&copy; 2024 ExpoSchool. Tous droits réservés.</p>
+                        <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-500">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            Tous les systèmes opérationnels
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- GENERATE PAGE -->
+        <div id="page-generate" class="hidden min-h-screen bg-slate-50 dark:bg-[#0f172a] pb-20">
+            <div class="max-w-7xl mx-auto px-6 py-12">
+                <div class="text-center mb-12 reveal">
+                    <span class="inline-block px-4 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-semibold mb-4">Création</span>
+                    <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Générer un exposé</h1>
+                    <p class="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">Remplissez le formulaire ci-dessous pour créer votre exposé personnalisé</p>
+                </div>
+
+                <div class="grid lg:grid-cols-5 gap-8">
+                    <!-- Form -->
+                    <div class="lg:col-span-2 reveal">
+                        <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700 lg:sticky lg:top-28">
+                            <h2 class="font-display text-2xl font-bold mb-6 flex items-center gap-3">
+                                <i class="fas fa-sliders text-primary-500"></i>
+                                Paramètres
+                            </h2>
+
+                            <form id="generate-form" class="space-y-6" onsubmit="handleGenerate(event)">
+                                <!-- Level -->
+                                <div>
+                                    <label class="block text-sm font-semibold mb-3">Niveau scolaire <span class="text-red-500">*</span></label>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="level" value="primaire" class="peer sr-only" required>
+                                            <div class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-all text-center hover:border-primary-300">
+                                                <div class="text-2xl mb-1">🎒</div>
+                                                <div class="font-semibold text-sm">Primaire</div>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="level" value="college" class="peer sr-only">
+                                            <div class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-all text-center hover:border-primary-300">
+                                                <div class="text-2xl mb-1">📖</div>
+                                                <div class="font-semibold text-sm">Collège</div>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="level" value="lycee" class="peer sr-only" checked>
+                                            <div class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-all text-center hover:border-primary-300">
+                                                <div class="text-2xl mb-1">🎓</div>
+                                                <div class="font-semibold text-sm">Lycée</div>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="level" value="universite" class="peer sr-only">
+                                            <div class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-all text-center hover:border-primary-300">
+                                                <div class="text-2xl mb-1">🏛️</div>
+                                                <div class="font-semibold text-sm">Université</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Subject -->
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Matière <span class="text-red-500">*</span></label>
+                                    <select name="subject" required class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 focus:ring-0 outline-none transition-colors text-sm">
+                                        <option value="">Choisir une matière...</option>
+                                        <option value="francais">Français</option>
+                                        <option value="anglais">Anglais</option>
+                                        <option value="histoire">Histoire</option>
+                                        <option value="geographie">Géographie</option>
+                                        <option value="mathematiques">Mathématiques</option>
+                                        <option value="svt">SVT</option>
+                                        <option value="physique-chimie">Physique Chimie</option>
+                                        <option value="philosophie">Philosophie</option>
+                                        <option value="informatique">Informatique</option>
+                                        <option value="economie">Économie</option>
+                                        <option value="education-civique">Éducation civique</option>
+                                        <option value="litterature">Littérature</option>
+                                        <option value="autres">Autres</option>
+                                    </select>
+                                </div>
+
+                                <!-- Theme -->
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Thème de l'exposé <span class="text-red-500">*</span></label>
+                                    <input type="text" name="theme" placeholder="Ex: La Révolution Française, Les énergies renouvelables..." required
+                                        class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 focus:ring-0 outline-none transition-colors text-sm">
+                                </div>
+
+                                <!-- Duration -->
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Durée souhaitée</label>
+                                    <select name="duration" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 focus:ring-0 outline-none transition-colors text-sm">
+                                        <option value="court">Court (2-3 minutes)</option>
+                                        <option value="moyen" selected>Moyen (5-7 minutes)</option>
+                                        <option value="long">Long (10-15 minutes)</option>
+                                        <option value="tres-long">Très long (20+ minutes)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Difficulty -->
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Difficulté</label>
+                                    <div class="flex gap-3">
+                                        <label class="flex-1 cursor-pointer">
+                                            <input type="radio" name="difficulty" value="facile" class="peer sr-only">
+                                            <div class="py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-green-500 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 text-center text-sm font-medium transition-all">Facile</div>
+                                        </label>
+                                        <label class="flex-1 cursor-pointer">
+                                            <input type="radio" name="difficulty" value="moyen" class="peer sr-only" checked>
+                                            <div class="py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-yellow-500 peer-checked:bg-yellow-50 dark:peer-checked:bg-yellow-900/20 text-center text-sm font-medium transition-all">Moyen</div>
+                                        </label>
+                                        <label class="flex-1 cursor-pointer">
+                                            <input type="radio" name="difficulty" value="difficile" class="peer sr-only">
+                                            <div class="py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 text-center text-sm font-medium transition-all">Difficile</div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Language -->
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Langue</label>
+                                    <select name="language" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 focus:ring-0 outline-none transition-colors text-sm">
+                                        <option value="fr" selected>Français</option>
+                                        <option value="en">Anglais</option>
+                                        <option value="ar">Arabe</option>
+                                    </select>
+                                </div>
+
+                                <!-- Style -->
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Style de rédaction</label>
+                                    <select name="style" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-primary-500 focus:ring-0 outline-none transition-colors text-sm">
+                                        <option value="academique" selected>Académique</option>
+                                        <option value="simple">Simple et accessible</option>
+                                        <option value="creatif">Créatif et imagé</option>
+                                        <option value="formel">Formel et soutenu</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" id="generate-btn" class="w-full py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-primary-500/25 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-3">
+                                    <i class="fas fa-wand-magic-sparkles"></i>
+                                    Générer mon exposé
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Result Area -->
+                    <div class="lg:col-span-3 reveal">
+                        <!-- Loading State -->
+                        <div id="loading-state" class="hidden glass rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-700">
+                            <div class="loader mx-auto mb-6"></div>
+                            <h3 class="text-2xl font-bold mb-2">Génération en cours...</h3>
+                            <p class="text-slate-600 dark:text-slate-400 mb-8">Notre IA analyse votre demande et rédige un exposé de qualité</p>
+
+                            <div class="max-w-md mx-auto space-y-3 text-left">
+                                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400" id="step-1">
+                                    <i class="fas fa-circle-notch fa-spin text-primary-500"></i>
+                                    <span>Analyse du sujet et du niveau scolaire...</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 opacity-50" id="step-2">
+                                    <i class="fas fa-circle text-slate-300 dark:text-slate-600"></i>
+                                    <span>Structuration de l'exposé...</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 opacity-50" id="step-3">
+                                    <i class="fas fa-circle text-slate-300 dark:text-slate-600"></i>
+                                    <span>Rédaction du contenu...</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 opacity-50" id="step-4">
+                                    <i class="fas fa-circle text-slate-300 dark:text-slate-600"></i>
+                                    <span>Vérification et mise en forme...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="empty-state" class="glass rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-700 border-dashed">
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 flex items-center justify-center text-4xl mx-auto mb-6">
+                                ✨
+                            </div>
+                            <h3 class="text-2xl font-bold mb-2">Votre exposé apparaîtra ici</h3>
+                            <p class="text-slate-600 dark:text-slate-400 max-w-md mx-auto">Remplissez le formulaire à gauche et cliquez sur "Générer mon exposé" pour commencer.</p>
+                        </div>
+
+                        <!-- Result Content -->
+                        <div id="result-content" class="hidden space-y-6">
+                            <!-- Toolbar -->
+                            <div class="glass rounded-2xl p-4 flex flex-wrap items-center gap-3 border border-slate-200 dark:border-slate-700 sticky top-28 z-30">
+                                <button onclick="speakText()" id="btn-speak" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors text-sm font-medium">
+                                    <i class="fas fa-volume-high"></i>
+                                    Écouter
+                                </button>
+                                <button onclick="copyText()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-medium">
+                                    <i class="fas fa-copy"></i>
+                                    Copier
+                                </button>
+                                <button onclick="downloadPDF()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm font-medium">
+                                    <i class="fas fa-file-pdf"></i>
+                                    PDF
+                                </button>
+                                <button onclick="printExpo()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-medium">
+                                    <i class="fas fa-print"></i>
+                                    Imprimer
+                                </button>
+                                <button onclick="toggleFavorite()" id="btn-favorite" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-medium ml-auto">
+                                    <i class="far fa-heart"></i>
+                                    Favori
+                                </button>
+                            </div>
+
+                            <!-- Audio Player -->
+                            <div id="audio-player" class="hidden glass rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+                                <div class="flex items-center gap-4">
+                                    <button onclick="toggleSpeech()" id="btn-play-pause" class="w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-white flex items-center justify-center hover:scale-110 transition-transform shrink-0">
+                                        <i class="fas fa-play" id="play-icon"></i>
+                                    </button>
+                                    <div class="flex-1">
+                                        <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                            <div id="audio-progress" class="h-full bg-gradient-to-r from-primary-500 to-accent-500 w-0 transition-all duration-300"></div>
+                                        </div>
+                                    </div>
+                                    <div class="audio-wave h-8" id="audio-visualizer">
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Content -->
+                            <div id="expo-text" class="pdf-preview rounded-3xl p-8 md:p-12 shadow-xl">
+                                <!-- Content injected by JS -->
+                            </div>
+
+                            <!-- Images Section -->
+                            <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700">
+                                <h3 class="font-display text-xl font-bold mb-6 flex items-center gap-3">
+                                    <i class="fas fa-images text-accent-500"></i>
+                                    Illustrations suggérées
+                                </h3>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="suggested-images"></div>
+                            </div>
+
+                            <!-- Quiz Section -->
+                            <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700">
+                                <h3 class="font-display text-xl font-bold mb-6 flex items-center gap-3">
+                                    <i class="fas fa-question-circle text-green-500"></i>
+                                    Quiz de révision
+                                </h3>
+                                <div id="quiz-container" class="space-y-4"></div>
+                            </div>
+
+                            <!-- Summary Card -->
+                            <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700 bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20">
+                                <h3 class="font-display text-xl font-bold mb-4 flex items-center gap-3">
+                                    <i class="fas fa-file-lines text-primary-500"></i>
+                                    Fiche de résumé
+                                </h3>
+                                <div id="summary-content" class="prose dark:prose-invert max-w-none text-sm leading-relaxed"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY PAGE -->
+        <div id="page-history" class="hidden min-h-screen bg-slate-50 dark:bg-[#0f172a] pb-20">
+            <div class="max-w-7xl mx-auto px-6 py-12">
+                <div class="text-center mb-12">
+                    <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Mon historique</h1>
+                    <p class="text-slate-600 dark:text-slate-400">Retrouvez tous vos exposés générés</p>
+                </div>
+                <div id="history-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="history-empty" class="hidden text-center py-20">
+                    <div class="text-6xl mb-4">📭</div>
+                    <h3 class="text-xl font-bold mb-2">Aucun exposé dans l'historique</h3>
+                    <p class="text-slate-500 mb-6">Commencez par créer votre premier exposé !</p>
+                    <button onclick="showPage('generate')" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+                        Créer un exposé
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAVORITES PAGE -->
+        <div id="page-favorites" class="hidden min-h-screen bg-slate-50 dark:bg-[#0f172a] pb-20">
+            <div class="max-w-7xl mx-auto px-6 py-12">
+                <div class="text-center mb-12">
+                    <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Mes favoris</h1>
+                    <p class="text-slate-600 dark:text-slate-400">Vos exposés préférés sauvegardés</p>
+                </div>
+                <div id="favorites-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="favorites-empty" class="hidden text-center py-20">
+                    <div class="text-6xl mb-4">💝</div>
+                    <h3 class="text-xl font-bold mb-2">Aucun favori</h3>
+                    <p class="text-slate-500 mb-6">Ajoutez des exposés à vos favoris pour les retrouver ici.</p>
+                    <button onclick="showPage('generate')" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+                        Créer un exposé
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN PAGE -->
+        <div id="page-admin" class="hidden min-h-screen bg-slate-50 dark:bg-[#0f172a] pb-20">
+            <div class="max-w-7xl mx-auto px-6 py-12">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-4">
+                    <div>
+                        <h1 class="font-display text-4xl font-bold mb-2">Tableau de bord Admin</h1>
+                        <p class="text-slate-600 dark:text-slate-400">Gestion de la plateforme ExpoSchool</p>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        En ligne
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div class="glass rounded-2xl p-6 border border-slate-200 dark:border-slate-700 card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Utilisateurs</span>
+                            <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600"><i class="fas fa-users"></i></div>
+                        </div>
+                        <div class="text-3xl font-bold">12,847</div>
+                        <div class="text-sm text-green-500 mt-1"><i class="fas fa-arrow-up"></i> +12% ce mois</div>
+                    </div>
+                    <div class="glass rounded-2xl p-6 border border-slate-200 dark:border-slate-700 card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Exposés générés</span>
+                            <div class="w-10 h-10 rounded-xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center text-accent-600"><i class="fas fa-file-alt"></i></div>
+                        </div>
+                        <div class="text-3xl font-bold">54,231</div>
+                        <div class="text-sm text-green-500 mt-1"><i class="fas fa-arrow-up"></i> +28% ce mois</div>
+                    </div>
+                    <div class="glass rounded-2xl p-6 border border-slate-200 dark:border-slate-700 card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Matières actives</span>
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600"><i class="fas fa-book"></i></div>
+                        </div>
+                        <div class="text-3xl font-bold">12</div>
+                        <div class="text-sm text-slate-500 mt-1">Toutes opérationnelles</div>
+                    </div>
+                    <div class="glass rounded-2xl p-6 border border-slate-200 dark:border-slate-700 card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Satisfaction</span>
+                            <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600"><i class="fas fa-smile"></i></div>
+                        </div>
+                        <div class="text-3xl font-bold">98.2%</div>
+                        <div class="text-sm text-green-500 mt-1"><i class="fas fa-arrow-up"></i> +2.1% ce mois</div>
+                    </div>
+                </div>
+
+                <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700 mb-8">
+                    <h3 class="font-display text-xl font-bold mb-6">Activité récente</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-700">
+                                    <th class="pb-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Utilisateur</th>
+                                    <th class="pb-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Thème</th>
+                                    <th class="pb-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Matière</th>
+                                    <th class="pb-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Niveau</th>
+                                    <th class="pb-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Date</th>
+                                    <th class="pb-4 font-semibold text-sm text-slate-500 dark:text-slate-400">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm" id="admin-activity"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700">
+                        <h3 class="font-display text-xl font-bold mb-6">Répartition par matière</h3>
+                        <div class="space-y-4" id="admin-subjects-chart"></div>
+                    </div>
+                    <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700">
+                        <h3 class="font-display text-xl font-bold mb-6">Répartition par niveau</h3>
+                        <div class="space-y-4" id="admin-levels-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass rounded-2xl px-6 py-4 shadow-2xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+            <div id="toast-icon" class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 shrink-0">
+                <i class="fas fa-check"></i>
+            </div>
+            <span id="toast-message" class="font-medium">Opération réussie</span>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA ====================
+        const subjectsData = [
+            { id: 'francais', name: 'Français', icon: '📚', color: 'from-blue-500 to-indigo-600', desc: 'Grammaire, littérature, expression' },
+            { id: 'anglais', name: 'Anglais', icon: '🇬🇧', color: 'from-red-500 to-pink-600', desc: 'Langue et culture anglo-saxonne' },
+            { id: 'histoire', name: 'Histoire', icon: '🏛️', color: 'from-amber-500 to-orange-600', desc: 'Événements et périodes historiques' },
+            { id: 'geographie', name: 'Géographie', icon: '🌍', color: 'from-emerald-500 to-teal-600', desc: 'Territoires, climats, populations' },
+            { id: 'mathematiques', name: 'Mathématiques', icon: '📐', color: 'from-cyan-500 to-blue-600', desc: 'Algèbre, géométrie, analyse' },
+            { id: 'svt', name: 'SVT', icon: '🔬', color: 'from-green-500 to-emerald-600', desc: 'Sciences de la vie et de la Terre' },
+            { id: 'physique-chimie', name: 'Physique-Chimie', icon: '⚛️', color: 'from-violet-500 to-purple-600', desc: 'Matière, énergie, réactions' },
+            { id: 'philosophie', name: 'Philosophie', icon: '🤔', color: 'from-slate-500 to-gray-600', desc: 'Pensée, existence, morale' },
+            { id: 'informatique', name: 'Informatique', icon: '💻', color: 'from-sky-500 to-blue-600', desc: 'Programmation, réseaux, données' },
+            { id: 'economie', name: 'Économie', icon: '💰', color: 'from-yellow-500 to-amber-600', desc: 'Marchés, finance, politique éco' },
+            { id: 'education-civique', name: 'Éducation civique', icon: '🏛️', color: 'from-rose-500 to-red-600', desc: 'Citoyenneté, droits, devoirs' },
+            { id: 'litterature', name: 'Littérature', icon: '✒️', color: 'from-fuchsia-500 to-pink-600', desc: 'Œuvres, auteurs, mouvements' },
+        ];
+
+        const testimonialsData = [
+            { name: 'Sophie M.', role: 'Lycéenne, Terminale', avatar: '👩‍🎓', text: 'ExpoSchool m'a sauvée pour mon oral de français ! L'exposé était parfaitement structuré et adapté au niveau lycée.', rating: 5 },
+            { name: 'Thomas K.', role: 'Collégien, 3ème', avatar: '👨‍🎓', text: 'J'ai eu 18/20 sur mon exposé d'histoire grâce à cette plateforme. C'est devenu mon outil secret pour réussir.', rating: 5 },
+            { name: 'Emma L.', role: 'Étudiante, L1', avatar: '👩‍💼', text: 'La fonction audio est géniale pour réviser en marchant. Et le PDF est vraiment propre et professionnel.', rating: 5 },
+        ];
+
+        const adminActivityData = [
+            { user: 'sophie.m@email.com', theme: 'La poésie engagée', subject: 'Français', level: 'Lycée', date: 'Il y a 2 min', status: 'Terminé' },
+            { user: 'thomas.k@email.com', theme: 'La Seconde Guerre mondiale', subject: 'Histoire', level: 'Collège', date: 'Il y a 5 min', status: 'Terminé' },
+            { user: 'emma.l@email.com', theme: 'Les énergies renouvelables', subject: 'SVT', level: 'Université', date: 'Il y a 12 min', status: 'Terminé' },
+            { user: 'lucas.d@email.com', theme: 'Les fonctions dérivées', subject: 'Mathématiques', level: 'Lycée', date: 'Il y a 18 min', status: 'Terminé' },
+            { user: 'chloe.b@email.com', theme: 'La démocratie athénienne', subject: 'Histoire', level: 'Collège', date: 'Il y a 25 min', status: 'Terminé' },
+            { user: 'nathan.r@email.com', theme: 'La photosynthèse', subject: 'SVT', level: 'Lycée', date: 'Il y a 32 min', status: 'Terminé' },
+        ];
+
+        // ==================== STATE ====================
+        let currentExpo = null;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+        let history = JSON.parse(localStorage.getItem('exposchool_history') || '[]');
+        let favorites = JSON.parse(localStorage.getItem('exposchool_favorites') || '[]');
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSubjects();
+            renderTestimonials();
+            renderAdminActivity();
+            renderAdminCharts();
+            initScrollReveal();
+            initDarkMode();
+        });
+
+        // ==================== NAVIGATION ====================
+        function showPage(pageName) {
+            const pages = ['home', 'generate', 'history', 'favorites', 'admin'];
+            pages.forEach(p => {
+                const el = document.getElementById('page-' + p);
+                if (el) el.classList.add('hidden');
+            });
+
+            const target = document.getElementById('page-' + pageName);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            if (pageName === 'history') renderHistory();
+            if (pageName === 'favorites') renderFavorites();
+            if (pageName === 'admin') renderAdminActivity();
+
+            // Close mobile menu
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        function scrollToSection(id) {
+            showPage('home');
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // ==================== DARK MODE ====================
+        function initDarkMode() {
+            if (localStorage.getItem('exposchool_dark') === 'true' || 
+                (!localStorage.getItem('exposchool_dark') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('exposchool_dark', document.documentElement.classList.contains('dark'));
+        }
+
+        // ==================== SCROLL REVEAL ====================
+        function initScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // ==================== RENDER FUNCTIONS ====================
+        function renderSubjects() {
+            const grid = document.getElementById('subjects-grid');
+            if (!grid) return;
+            grid.innerHTML = subjectsData.map(s => `
+                <div class="group cursor-pointer" onclick="selectSubjectAndGo('${s.id}')">
+                    <div class="glass rounded-2xl p-6 border border-slate-200 dark:border-slate-700 card-hover h-full">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                            ${s.icon}
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">${s.name}</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">${s.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTestimonials() {
+            const grid = document.getElementById('testimonials-grid');
+            if (!grid) return;
+            grid.innerHTML = testimonialsData.map(t => `
+                <div class="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-700 card-hover reveal">
+                    <div class="flex items-center gap-1 mb-4">
+                        ${Array(t.rating).fill('<i class="fas fa-star text-yellow-400 text-sm"></i>').join('')}
+                    </div>
+                    <p class="text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">"${t.text}"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 flex items-center justify-center text-2xl">
+                            ${t.avatar}
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm">${t.name}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">${t.role}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminActivity() {
+            const tbody = document.getElementById('admin-activity');
+            if (!tbody) return;
+            tbody.innerHTML = adminActivityData.map(a => `
+                <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td class="py-4 font-medium">${a.user}</td>
+                    <td class="py-4">${a.theme}</td>
+                    <td class="py-4"><span class="px-2 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium">${a.subject}</span></td>
+                    <td class="py-4">${a.level}</td>
+                    <td class="py-4 text-slate-500">${a.date}</td>
+                    <td class="py-4"><span class="px-2 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">${a.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminCharts() {
+            const subjectsChart = document.getElementById('admin-subjects-chart');
+            const levelsChart = document.getElementById('admin-levels-chart');
+
+            if (subjectsChart) {
+                const subjectCounts = { 'Histoire': 35, 'Français': 28, 'SVT': 22, 'Mathématiques': 18, 'Autres': 47 };
+                subjectsChart.innerHTML = Object.entries(subjectCounts).map(([name, count]) => `
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>${name}</span>
+                            <span class="font-semibold">${count}%</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full" style="width: ${count}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if (levelsChart) {
+                const levelCounts = { 'Lycée': 42, 'Collège': 30, 'Université': 18, 'Primaire': 10 };
+                levelsChart.innerHTML = Object.entries(levelCounts).map(([name, count]) => `
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>${name}</span>
+                            <span class="font-semibold">${count}%</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-accent-500 to-purple-500 rounded-full" style="width: ${count}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function selectSubjectAndGo(subjectId) {
+            showPage('generate');
+            setTimeout(() => {
+                const select = document.querySelector('select[name="subject"]');
+                if (select) select.value = subjectId;
+            }, 100);
+        }
+
+        // ==================== GENERATE EXPO ====================
+        function handleGenerate(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+
+            const params = {
+                level: formData.get('level'),
+                subject: formData.get('subject'),
+                theme: formData.get('theme'),
+                duration: formData.get('duration'),
+                difficulty: formData.get('difficulty'),
+                language: formData.get('language'),
+                style: formData.get('style')
+            };
+
+            if (!params.subject || !params.theme) {
+                showToast('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('result-content').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+
+            // Animate steps
+            animateSteps();
+
+            // Simulate generation
+            setTimeout(() => {
+                const expo = generateExpoContent(params);
+                currentExpo = expo;
+                displayExpo(expo);
+                saveToHistory(expo);
+
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('result-content').classList.remove('hidden');
+
+                // Confetti
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#3b82f6', '#8b5cf6', '#d946ef']
+                });
+
+                showToast('Exposé généré avec succès !', 'success');
+            }, 3500);
+        }
+
+        function animateSteps() {
+            const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+            steps.forEach((step, i) => {
+                setTimeout(() => {
+                    const el = document.getElementById(step);
+                    if (!el) return;
+                    el.classList.remove('opacity-50');
+                    el.querySelector('i').className = 'fas fa-circle-notch fa-spin text-primary-500';
+                    if (i > 0) {
+                        const prev = document.getElementById(steps[i-1]);
+                        if (prev) {
+                            prev.querySelector('i').className = 'fas fa-check-circle text-green-500';
+                        }
+                    }
+                }, i * 700);
+            });
+        }
+
+        function generateExpoContent(params) {
+            const subjectNames = {
+                'francais': 'Français', 'anglais': 'Anglais', 'histoire': 'Histoire',
+                'geographie': 'Géographie', 'mathematiques': 'Mathématiques', 'svt': 'SVT',
+                'physique-chimie': 'Physique-Chimie', 'philosophie': 'Philosophie',
+                'informatique': 'Informatique', 'economie': 'Économie',
+                'education-civique': 'Éducation civique', 'litterature': 'Littérature', 'autres': 'Autres'
+            };
+
+            const levelNames = {
+                'primaire': 'Primaire', 'college': 'Collège', 'lycee': 'Lycée', 'universite': 'Université'
+            };
+
+            const theme = params.theme;
+            const subject = subjectNames[params.subject] || params.subject;
+            const level = levelNames[params.level] || params.level;
+
+            // Generate structured content based on theme
+            const content = generateStructuredExpo(theme, subject, level, params);
+
+            return {
+                id: Date.now(),
+                title: theme,
+                subject: subject,
+                level: level,
+                date: new Date().toLocaleDateString('fr-FR'),
+                content: content,
+                params: params,
+                isFavorite: false
+            };
+        }
+
+        function generateStructuredExpo(theme, subject, level, params) {
+            const vocabLevel = params.level === 'primaire' ? 'simple' : params.level === 'college' ? 'accessible' : params.level === 'lycee' ? 'académique' : 'soutenu';
+
+            return {
+                title: theme,
+                introduction: `L'exposé porte sur le thème de « ${theme} ». Ce sujet est d'une importance capitale dans le domaine de ${subject.toLowerCase()} et mérite une analyse approfondie. Nous allons examiner les différents aspects de cette question en nous appuyant sur des exemples concrets et des arguments solides.`,
+
+                parts: [
+                    {
+                        title: 'I. Présentation du sujet et définitions',
+                        content: `Avant d'aborder le cœur du sujet, il est essentiel de définir les termes clés. ${theme} fait référence à un ensemble de concepts et de réalités qui ont évolué au fil du temps. Cette notion est au centre de nombreux débats contemporains et intéresse aussi bien les spécialistes que le grand public.
+
+Dans un premier temps, nous verrons les origines et les fondements de ${theme}. Ensuite, nous analyserons ses implications actuelles. Enfin, nous examinerons les perspectives d'avenir.`
+                    },
+                    {
+                        title: 'II. Analyse approfondie',
+                        content: `L'étude de ${theme} révèle plusieurs aspects fondamentaux. Tout d'abord, il convient de noter l'importance historique de ce sujet. Les événements et les découvertes qui l'ont marqué ont profondément transformé notre compréhension du monde.
+
+Par ailleurs, les différentes approches théoriques permettent d'éclairer ce phénomène sous des angles complémentaires. Les chercheurs et les experts s'accordent sur l'importance de prendre en compte les multiples dimensions de cette question.
+
+Voici quelques points clés à retenir :
+• La dimension historique et son évolution
+• Les impacts sur la société contemporaine
+• Les enjeux actuels et futurs
+• Les différentes perspectives d'analyse`
+                    },
+                    {
+                        title: 'III. Exemples et illustrations',
+                        content: `Pour mieux comprendre ${theme}, prenons quelques exemples concrets. Ces illustrations permettent de saisir la portée pratique de nos propos et de rendre l'exposé plus accessible.
+
+Le premier exemple concerne une situation historique marquante où cette notion a pris toute son importance. Le second exemple illustre une application contemporaine qui démontre la pertinence actuelle du sujet. Enfin, un troisième exemple montre comment cette question pourrait évoluer à l'avenir.
+
+Ces exemples montrent bien que ${theme} n'est pas une notion abstraite mais qu'elle a des répercussions concrètes sur notre quotidien.`
+                    }
+                ],
+
+                conclusion: `En conclusion, ${theme} est un sujet riche et complexe qui mérite toute notre attention. Nous avons vu que ses origines remontent loin dans l'histoire, que ses implications sont multiples et que son évolution continue de façonner notre monde.
+
+Il est important de poursuivre la réflexion sur ce thème car les enjeux qui y sont liés concernent l'avenir de notre société. Chacun d'entre nous a un rôle à jouer dans la compréhension et la transmission de ces connaissances.`,
+
+                opening: `Pour aller plus loin, on pourrait s'interroger sur les liens entre ${theme} et d'autres domaines connexes. De nouvelles recherches pourraient également explorer des aspects encore méconnus de cette question. Le débat reste ouvert et invite chacun à approfondir sa réflexion personnelle.`,
+
+                vocabulary: `Vocabulaire clé : notion, concept, analyse, implication, perspective, évolution, fondement, dimension, repercussion, enjeu, contemporain, approfondissement.`,
+
+                summary: `Résumé : ${theme} est un sujet central en ${subject.toLowerCase()}. Il comporte trois aspects principaux : ses origines historiques, ses implications actuelles et ses perspectives futures. Les exemples concrets montrent sa pertinence dans la société contemporaine.`,
+
+                quiz: [
+                    { q: `Quel est le thème principal de cet exposé ?`, a: ['Un sujet historique', theme, 'Une invention'], correct: 1 },
+                    { q: `Combien de parties principales comporte l'exposé ?`, a: ['2', '3', '4'], correct: 1 },
+                    { q: `Dans quelle matière s'inscrit ce sujet ?`, a: ['Mathématiques', subject, 'Sport'], correct: 1 },
+                    { q: `Quel est le niveau scolaire visé ?`, a: ['Primaire', level, 'Doctorat'], correct: 1 },
+                ]
+            };
+        }
+
+        function displayExpo(expo) {
+            const container = document.getElementById('expo-text');
+            const c = expo.content;
+
+            container.innerHTML = `
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-10">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-semibold mb-4">
+                            ${expo.subject} • ${expo.level}
+                        </div>
+                        <h1 class="font-display text-3xl md:text-4xl font-bold mb-4">${c.title}</h1>
+                        <div class="w-20 h-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full mx-auto"></div>
+                    </div>
+
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-l-4 border-primary-500">
+                            <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
+                                <i class="fas fa-door-open text-primary-500"></i> Introduction
+                            </h2>
+                            <p class="leading-relaxed text-slate-700 dark:text-slate-300">${c.introduction}</p>
+                        </div>
+
+                        ${c.parts.map((part, i) => `
+                            <div class="mb-8">
+                                <h2 class="font-display text-xl font-bold mb-4 flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 text-white flex items-center justify-center text-sm">${i + 1}</span>
+                                    ${part.title}
+                                </h2>
+                                <div class="pl-10">
+                                    ${part.content.split('
+
+').map(p => `<p class="mb-4 leading-relaxed text-slate-700 dark:text-slate-300">${p.replace(/
+/g, '<br>')}</p>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+
+                        <div class="mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-l-4 border-accent-500">
+                            <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
+                                <i class="fas fa-flag-checkered text-accent-500"></i> Conclusion
+                            </h2>
+                            <p class="leading-relaxed text-slate-700 dark:text-slate-300">${c.conclusion}</p>
+                        </div>
+
+                        <div class="mb-8 p-6 bg-gradient-to-r from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-2xl">
+                            <h2 class="font-display text-xl font-bold mb-3 flex items-center gap-2">
+                                <i class="fas fa-compass text-primary-500"></i> Ouverture
+                            </h2>
+                            <p class="leading-relaxed text-slate-700 dark:text-slate-300">${c.opening}</p>
+                        </div>
+
+                        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
+                            <h3 class="font-bold text-sm mb-2 flex items-center gap-2">
+                                <i class="fas fa-book text-yellow-600"></i> Vocabulaire
+                            </h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">${c.vocabulary}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render images
+            const imagesContainer = document.getElementById('suggested-images');
+            if (imagesContainer) {
+                imagesContainer.innerHTML = [
+                    'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=300&fit=crop'
+                ].map(url => `
+                    <div class="aspect-video rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-800">
+                        <img src="${url}" alt="Illustration" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" loading="lazy">
+                    </div>
+                `).join('');
+            }
+
+            // Render quiz
+            const quizContainer = document.getElementById('quiz-container');
+            if (quizContainer && c.quiz) {
+                quizContainer.innerHTML = c.quiz.map((q, i) => `
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700" id="quiz-q-${i}">
+                        <p class="font-medium mb-3">${i + 1}. ${q.q}</p>
+                        <div class="space-y-2">
+                            ${q.a.map((ans, j) => `
+                                <button onclick="checkAnswer(${i}, ${j}, ${q.correct})" class="w-full text-left px-4 py-2 rounded-lg bg-white dark:bg-slate-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 border border-slate-200 dark:border-slate-600 transition-colors text-sm quiz-btn-${i}" data-idx="${j}">
+                                    ${String.fromCharCode(65 + j)}. ${ans}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div class="quiz-result-${i} mt-2 hidden"></div>
+                    </div>
+                `).join('');
+            }
+
+            // Render summary
+            const summaryContainer = document.getElementById('summary-content');
+            if (summaryContainer) {
+                summaryContainer.innerHTML = `
+                    <div class="space-y-3">
+                        <p><strong>Thème :</strong> ${c.title}</p>
+                        <p><strong>Matière :</strong> ${expo.subject}</p>
+                        <p><strong>Niveau :</strong> ${expo.level}</p>
+                        <hr class="border-slate-200 dark:border-slate-700">
+                        <p>${c.summary}</p>
+                        <div class="mt-4 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <p class="text-xs text-slate-500 mb-1">Points clés :</p>
+                            <ul class="text-sm space-y-1 list-disc list-inside">
+                                <li>Origines et fondements</li>
+                                <li>Implications actuelles</li>
+                                <li>Perspectives d'avenir</li>
+                                <li>Exemples concrets</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update favorite button
+            updateFavoriteButton();
+        }
+
+        function checkAnswer(qIdx, selected, correct) {
+            const buttons = document.querySelectorAll(`.quiz-btn-${qIdx}`);
+            const resultDiv = document.querySelector(`.quiz-result-${qIdx}`);
+
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-primary-50', 'dark:hover:bg-primary-900/20');
+                if (i === correct) {
+                    btn.classList.add('bg-green-100', 'dark:bg-green-900/30', 'border-green-500');
+                } else if (i === selected && i !== correct) {
+                    btn.classList.add('bg-red-100', 'dark:bg-red-900/30', 'border-red-500');
+                }
+            });
+
+            if (resultDiv) {
+                resultDiv.classList.remove('hidden');
+                if (selected === correct) {
+                    resultDiv.innerHTML = '<span class="text-green-600 text-sm font-medium"><i class="fas fa-check-circle"></i> Bonne réponse !</span>';
+                } else {
+                    resultDiv.innerHTML = '<span class="text-red-600 text-sm font-medium"><i class="fas fa-times-circle"></i> Mauvaise réponse. La bonne réponse est ' + String.fromCharCode(65 + correct) + '.</span>';
+                }
+            }
+        }
+
+        // ==================== AUDIO / SPEECH ====================
+        function speakText() {
+            if (!currentExpo) return;
+
+            const text = extractTextFromExpo();
+            if (!text) return;
+
+            document.getElementById('audio-player').classList.remove('hidden');
+
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                updatePlayButton();
+                return;
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = 'fr-FR';
+            currentUtterance.rate = 0.9;
+            currentUtterance.pitch = 1;
+
+            currentUtterance.onstart = () => {
+                isSpeaking = true;
+                updatePlayButton();
+            };
+
+            currentUtterance.onend = () => {
+                isSpeaking = false;
+                updatePlayButton();
+                document.getElementById('audio-progress').style.width = '0%';
+            };
+
+            currentUtterance.onboundary = (e) => {
+                const progress = (e.charIndex / text.length) * 100;
+                document.getElementById('audio-progress').style.width = progress + '%';
+            };
+
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        function toggleSpeech() {
+            speakText();
+        }
+
+        function updatePlayButton() {
+            const icon = document.getElementById('play-icon');
+            if (icon) {
+                icon.className = isSpeaking ? 'fas fa-pause' : 'fas fa-play';
+            }
+        }
+
+        function extractTextFromExpo() {
+            if (!currentExpo || !currentExpo.content) return '';
+            const c = currentExpo.content;
+            let text = c.title + '. ' + c.introduction + '. ';
+            c.parts.forEach(p => {
+                text += p.title + '. ' + p.content + '. ';
+            });
+            text += c.conclusion + '. ' + c.opening;
+            return text;
+        }
+
+        // ==================== COPY / PDF / PRINT ====================
+        function copyText() {
+            if (!currentExpo) return;
+            const text = extractTextFromExpo();
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Texte copié dans le presse-papiers', 'success');
+            });
+        }
+
+        function downloadPDF() {
+            if (!currentExpo) return;
+
+            const c = currentExpo.content;
+            let htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${c.title}</title>
+                    <style>
+                        body { font-family: 'Georgia', serif; line-height: 1.8; max-width: 800px; margin: 0 auto; padding: 40px; color: #333; }
+                        h1 { text-align: center; font-size: 28px; margin-bottom: 10px; color: #1e3a8a; }
+                        .meta { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; }
+                        h2 { color: #1e40af; font-size: 20px; margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+                        p { margin-bottom: 15px; text-align: justify; }
+                        .intro, .conclusion { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; }
+                        .vocab { background: #fefce8; padding: 15px; border-radius: 8px; margin-top: 30px; font-size: 14px; }
+                        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${c.title}</h1>
+                    <div class="meta">${currentExpo.subject} • ${currentExpo.level} • Généré par ExpoSchool</div>
+
+                    <div class="intro">
+                        <h2>Introduction</h2>
+                        <p>${c.introduction}</p>
+                    </div>
+
+                    ${c.parts.map(p => `
+                        <h2>${p.title}</h2>
+                        ${p.content.split('
+
+').map(para => `<p>${para.replace(/
+/g, '<br>')}</p>`).join('')}
+                    `).join('')}
+
+                    <div class="conclusion">
+                        <h2>Conclusion</h2>
+                        <p>${c.conclusion}</p>
+                        <h2>Ouverture</h2>
+                        <p>${c.opening}</p>
+                    </div>
+
+                    <div class="vocab">
+                        <strong>Vocabulaire :</strong> ${c.vocabulary}
+                    </div>
+
+                    <div class="footer">
+                        Document généré automatiquement par ExpoSchool - www.exposchool.fr
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ExpoSchool_${c.title.replace(/[^a-zA-Z0-9]/g, '_')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Document téléchargé', 'success');
+        }
+
+        function printExpo() {
+            if (!currentExpo) return;
+            window.print();
+        }
+
+        // ==================== HISTORY & FAVORITES ====================
+        function saveToHistory(expo) {
+            history.unshift(expo);
+            if (history.length > 50) history = history.slice(0, 50);
+            localStorage.setItem('exposchool_history', JSON.stringify(history));
+        }
+
+        function toggleFavorite() {
+            if (!currentExpo) return;
+
+            const idx = favorites.findIndex(f => f.id === currentExpo.id);
+            if (idx >= 0) {
+                favorites.splice(idx, 1);
+                currentExpo.isFavorite = false;
+                showToast('Retiré des favoris', 'info');
+            } else {
+                currentExpo.isFavorite = true;
+                favorites.unshift({ ...currentExpo });
+                showToast('Ajouté aux favoris', 'success');
+            }
+
+            localStorage.setItem('exposchool_favorites', JSON.stringify(favorites));
+            updateFavoriteButton();
+        }
+
+        function updateFavoriteButton() {
+            const btn = document.getElementById('btn-favorite');
+            if (!btn || !currentExpo) return;
+
+            const isFav = favorites.some(f => f.id === currentExpo.id);
+            btn.innerHTML = isFav 
+                ? '<i class="fas fa-heart text-red-500"></i> Favori' 
+                : '<i class="far fa-heart"></i> Favori';
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            const empty = document.getElementById('history-empty');
+            if (!list) return;
+
+            if (history.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            list.innerHTML = history.map(h => `
+                <div class="glass rounded-2xl p-6 border border-slate-200 dark:border-slate-700 card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-sm font-bold">
+                            ${h.subject.charAt(0)}
+                        </div>
+                        <span class="text-xs text-slate-400">${h.date}</span>
+                    </div>
+                    <h3 class="font-bold mb-1 line-clamp-2">${h.title}</h3>
+                    <div class="flex gap-2 mb-4">
+                        <span class="px-2 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs">${h.subject}</span>
+                        <span class="px-2 py-1 rounded-lg bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 text-xs">${h.level}</span>
+                    </div>
+                    <button onclick="loadExpoFromHistory(${h.id})" class="w-full py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-colors">
+                        Voir l'exposé
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderFavorites() {
+            const list = document.getElementById('favorites-list');
+            const empty = document.getElementById('favorites-empty');
+            if (!list) return;
+
+            if (favorites.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            list.innerHTML = favorites.map(f => `
+                <div class="glass rounded-2xl p-6 border border-slate-200 dark:border-slate-700 card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-sm font-bold">
+                            ${f.subject.charAt(0)}
+                        </div>
+                        <button onclick="removeFavorite(${f.id})" class="text-red-400 hover:text-red-600 transition-colors">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <h3 class="font-bold mb-1 line-clamp-2">${f.title}</h3>
+                    <div class="flex gap-2 mb-4">
+                        <span class="px-2 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs">${f.subject}</span>
+                        <span class="px-2 py-1 rounded-lg bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 text-xs">${f.level}</span>
+                    </div>
+                    <button onclick="loadExpoFromHistory(${f.id})" class="w-full py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-colors">
+                        Voir l'exposé
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function loadExpoFromHistory(id) {
+            const expo = history.find(h => h.id === id) || favorites.find(f => f.id === id);
+            if (expo) {
+                currentExpo = expo;
+                showPage('generate');
+                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('result-content').classList.remove('hidden');
+                displayExpo(expo);
+            }
+        }
+
+        function removeFavorite(id) {
+            favorites = favorites.filter(f => f.id !== id);
+            localStorage.setItem('exposchool_favorites', JSON.stringify(favorites));
+            renderFavorites();
+            showToast('Favori supprimé', 'info');
+        }
+
+        // ==================== TOAST ====================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+
+            const icons = {
+                success: { icon: 'fa-check', color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30' },
+                error: { icon: 'fa-exclamation', color: 'text-red-600', bg: 'bg-red-100 dark:bg-red-900/30' },
+                info: { icon: 'fa-info', color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' }
+            };
+
+            const config = icons[type] || icons.success;
+            iconEl.className = `w-8 h-8 rounded-full ${config.bg} flex items-center justify-center ${config.color} shrink-0`;
+            iconEl.innerHTML = `<i class="fas ${config.icon}"></i>`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // ==================== NAVBAR SCROLL ====================
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                navbar.classList.add('shadow-lg');
+            } else {
+                navbar.classList.remove('shadow-lg');
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>
